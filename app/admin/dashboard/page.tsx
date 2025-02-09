@@ -1,30 +1,60 @@
+import { createClient } from "@/utils/supabase/server";
 import Link from "next/link";
 
-function AdminDashboard() {
-  const dataPage = {
-    name: "Admin",
-    department: "Admin",
+async function AdminDashboard() {
+  const supabase = await createClient();
+
+  const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+
+  if (authError || !authUser) {
+    console.error('Error fetching authenticated user:', authError);
+    return;
+  }
+
+  const userId = authUser.id;
+
+  const { data: userData, error: userError } = await supabase
+    .from('User')
+    .select(`
+      name,
+      Department:departmentId (name)
+    `)
+    .eq('id', userId)
+    .single() as { data: { name: string, Department: { name: string } }, error: any };
+
+  console.log(userData);
+
+  if (userError) {
+    console.error('Error fetching user details:', userError);
+    return;
+  }
+
+  const userName = userData.name;
+  const departmentName = userData.Department.name;
+  const pageData = {
+    name: userName,
+    department: departmentName,
   };
-  
+
   const actions = [
-    {title: "Add Student", link:"add/user/student"},
-    {title: "Add Teacher", link:"add/user/teacher"},
-    {title: "Add Course", link:"add/course"},
-    {title: "Add Class", link:"add/class"},
-    
-    {title: "Edit Student", link:"edit/user/student"},
-    {title: "Edit Teacher", link:"edit/user/teacher"},
-    {title: "Edit Course", link:"edit/course"},
-    {title: "Edit Class", link:"edit/class"},
+    { title: "Add Student", link: "add/user/student" },
+    { title: "Add Teacher", link: "add/user/teacher" },
+    { title: "Add Course", link: "add/course" },
+    { title: "Add Class", link: "add/class" },
 
-    {title: "Generate Fees For Term", link:"fees/add/term"},
-    {title: "Generate Fees For Student", link:"fees/add/student"},
-    {title: "Clear Fees", link:"fees/clear"},
+    { title: "Edit Student", link: "edit/user/student" },
+    { title: "Edit Teacher", link: "edit/user/teacher" },
+    { title: "Edit Course", link: "edit/course" },
+    { title: "Edit Class", link: "edit/class" },
 
-    {title: "Enroll Students to Course", link:"enroll"},
-    {title: "Review Requests", link:"requests"},
+    { title: "Generate Fees For Term", link: "fees/add/term" },
+    { title: "Generate Fees For Student", link: "fees/add/student" },
+    { title: "Clear Fees", link: "fees/clear" },
 
-    {title: "Schedule Extra Class", link:"schedule"}
+    { title: "Enroll Students to Course", link: "enroll" },
+    { title: "Review Requests", link: "requests" },
+
+    { title: "Schedule Extra Class", link: "schedule" }
   ];
   return (
     <main>
@@ -35,8 +65,8 @@ function AdminDashboard() {
         </div>
         <div className="w-auto mx-8 flex justify-between flex-col gap-2.5 md:flex-row md:w-full md:m-5 md:gap-0 [&_span]:text-primary-color">
           <div>
-            <h1>{dataPage.name}</h1>
-            <h2>{dataPage.department}</h2>
+            <h1>{pageData.name}</h1>
+            <h2>{pageData.department}</h2>
           </div>
           <div></div>
         </div>

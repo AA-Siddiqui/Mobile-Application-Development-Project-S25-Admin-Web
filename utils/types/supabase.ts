@@ -57,6 +57,169 @@ export type Database = {
           },
         ]
       }
+      Assessment: {
+        Row: {
+          classId: number | null
+          deadline: string
+          description: string
+          id: number
+          max: number
+          title: string
+          type: string
+          weight: number
+        }
+        Insert: {
+          classId?: number | null
+          deadline: string
+          description: string
+          id?: number
+          max: number
+          title: string
+          type: string
+          weight: number
+        }
+        Update: {
+          classId?: number | null
+          deadline?: string
+          description?: string
+          id?: number
+          max?: number
+          title?: string
+          type?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Assessment_classId_fkey"
+            columns: ["classId"]
+            isOneToOne: false
+            referencedRelation: "Class"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      AssessmentFile: {
+        Row: {
+          assessmentId: number
+          id: number
+          name: string
+        }
+        Insert: {
+          assessmentId: number
+          id?: number
+          name: string
+        }
+        Update: {
+          assessmentId?: number
+          id?: number
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "AssessmentFile_assessmentId_fkey"
+            columns: ["assessmentId"]
+            isOneToOne: false
+            referencedRelation: "Assessment"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Attendance: {
+        Row: {
+          id: number
+          present: boolean
+          scheduleId: number
+          studentId: number
+        }
+        Insert: {
+          id?: number
+          present?: boolean
+          scheduleId: number
+          studentId: number
+        }
+        Update: {
+          id?: number
+          present?: boolean
+          scheduleId?: number
+          studentId?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Attendance_scheduleId_fkey"
+            columns: ["scheduleId"]
+            isOneToOne: false
+            referencedRelation: "Schedule"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Attendance_studentId_fkey"
+            columns: ["studentId"]
+            isOneToOne: false
+            referencedRelation: "Student"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Class: {
+        Row: {
+          courseId: number
+          id: number
+          section: string
+          teacherId: number
+          term: string
+        }
+        Insert: {
+          courseId: number
+          id?: number
+          section: string
+          teacherId: number
+          term: string
+        }
+        Update: {
+          courseId?: number
+          id?: number
+          section?: string
+          teacherId?: number
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Class_courseId_fkey"
+            columns: ["courseId"]
+            isOneToOne: false
+            referencedRelation: "Course"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Class_teacherId_fkey"
+            columns: ["teacherId"]
+            isOneToOne: false
+            referencedRelation: "Teacher"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Course: {
+        Row: {
+          credits: number
+          id: number
+          mode: string
+          name: string
+        }
+        Insert: {
+          credits?: number
+          id?: number
+          mode: string
+          name: string
+        }
+        Update: {
+          credits?: number
+          id?: number
+          mode?: string
+          name?: string
+        }
+        Relationships: []
+      }
       Department: {
         Row: {
           id: number
@@ -71,6 +234,77 @@ export type Database = {
           name?: string
         }
         Relationships: []
+      }
+      Enrollment: {
+        Row: {
+          classId: number
+          id: number
+          studentId: number
+        }
+        Insert: {
+          classId: number
+          id?: number
+          studentId: number
+        }
+        Update: {
+          classId?: number
+          id?: number
+          studentId?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Enrollment_classId_fkey"
+            columns: ["classId"]
+            isOneToOne: false
+            referencedRelation: "Class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Enrollment_studentId_fkey"
+            columns: ["studentId"]
+            isOneToOne: false
+            referencedRelation: "Student"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Invoice: {
+        Row: {
+          amount: number
+          description: string
+          dueDate: string
+          id: number
+          paidDate: string | null
+          studentId: number
+          term: string
+        }
+        Insert: {
+          amount: number
+          description?: string
+          dueDate: string
+          id?: number
+          paidDate?: string | null
+          studentId: number
+          term: string
+        }
+        Update: {
+          amount?: number
+          description?: string
+          dueDate?: string
+          id?: number
+          paidDate?: string | null
+          studentId?: number
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Invoice_studentId_fkey"
+            columns: ["studentId"]
+            isOneToOne: false
+            referencedRelation: "Student"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       Program: {
         Row: {
@@ -100,6 +334,169 @@ export type Database = {
             columns: ["departmentId"]
             isOneToOne: false
             referencedRelation: "Department"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Request: {
+        Row: {
+          classId: number
+          id: number
+          studentId: number
+        }
+        Insert: {
+          classId: number
+          id?: number
+          studentId: number
+        }
+        Update: {
+          classId?: number
+          id?: number
+          studentId?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Request_classId_fkey"
+            columns: ["classId"]
+            isOneToOne: false
+            referencedRelation: "Class"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Request_studentId_fkey"
+            columns: ["studentId"]
+            isOneToOne: false
+            referencedRelation: "Student"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Schedule: {
+        Row: {
+          classId: number
+          endTime: string
+          id: number
+          startTime: string
+          venue: string
+        }
+        Insert: {
+          classId: number
+          endTime: string
+          id?: number
+          startTime: string
+          venue: string
+        }
+        Update: {
+          classId?: number
+          endTime?: string
+          id?: number
+          startTime?: string
+          venue?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Schedule_classId_fkey"
+            columns: ["classId"]
+            isOneToOne: false
+            referencedRelation: "Class"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Student: {
+        Row: {
+          id: number
+          programId: number | null
+          rollNo: string
+          userId: string
+        }
+        Insert: {
+          id?: number
+          programId?: number | null
+          rollNo: string
+          userId: string
+        }
+        Update: {
+          id?: number
+          programId?: number | null
+          rollNo?: string
+          userId?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Student_programId_fkey"
+            columns: ["programId"]
+            isOneToOne: false
+            referencedRelation: "Program"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Student_userId_fkey"
+            columns: ["userId"]
+            isOneToOne: false
+            referencedRelation: "User"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      Submission: {
+        Row: {
+          assessmentId: number
+          id: number
+          marks: number | null
+          studentId: number
+        }
+        Insert: {
+          assessmentId: number
+          id?: number
+          marks?: number | null
+          studentId: number
+        }
+        Update: {
+          assessmentId?: number
+          id?: number
+          marks?: number | null
+          studentId?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "Submission_assessmentId_fkey"
+            columns: ["assessmentId"]
+            isOneToOne: false
+            referencedRelation: "Assessment"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "Submission_studentId_fkey"
+            columns: ["studentId"]
+            isOneToOne: false
+            referencedRelation: "Student"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      SubmissionFile: {
+        Row: {
+          id: number
+          name: string
+          submissionId: number
+        }
+        Insert: {
+          id?: number
+          name: string
+          submissionId: number
+        }
+        Update: {
+          id?: number
+          name?: string
+          submissionId?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "SubmissionFile_submissionId_fkey"
+            columns: ["submissionId"]
+            isOneToOne: false
+            referencedRelation: "Submission"
             referencedColumns: ["id"]
           },
         ]
