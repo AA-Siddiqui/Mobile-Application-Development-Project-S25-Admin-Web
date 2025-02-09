@@ -1,31 +1,48 @@
 "use client";
+import { createClient } from '@/utils/supabase/client';
+import { Tables } from '@/utils/types/supabase';
 import React, { useState } from 'react'
 // import Swal from 'sweetalert2';
 
 function FeeClearPage() {
-  const [dataPage, setData] = useState([]);
-  const [rollNoState, setRollNo] = useState("");
+  const [dataPage, setData] = useState<Tables<'Invoice'>[]>([]);
+  const [rollNoState, setRollNo] = useState(0);
 
-  async function getData(rollNo: string) {
-    const response = await fetch(`http://localhost:3001/admin/fees/${rollNo}`, {
-      method: 'GET',
-    });
-    const data = await response.json();
-    setData(data.data);
-  }
-
-  async function fetchStudentData(e: any) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const rollNo = formData.get("rollNo") as string;
-    setRollNo(rollNo);
-    getData(rollNo);
-  }
-
-  async function deductFee(e: any) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
+  async function getData(studentId: number) {
+    const supabase = createClient();
+    const { data: userData, error: userError } = await supabase
+      .from('Invoice')
+      .select(`*`)
+      .eq('studentId', studentId) as {data: Tables<'Invoice'>[], error: any};
     
+    console.log(userData);
+
+
+    setData(userData);
+  }
+
+  async function fetchStudentData(formData: FormData) {
+    const rollNo = formData.get("rollNo") as string;
+    const supabase = createClient();
+
+    const { data: userData, error: userError } = await supabase
+      .from('Student')
+      .select(`
+      id
+    `)
+      .eq('rollNo', rollNo)
+      .single() as { data: { id: number }, error: any };
+      
+    if (userError) {
+      console.error('Error fetching user details:', userError);
+      return;
+    }
+    setRollNo(userData.id);
+    getData(userData.id);
+  }
+
+  // TODO: Implement this
+  async function deductFee(formData: FormData) {
     const response = await fetch(`http://localhost:3001/admin/fees/${formData.get(`invoiceID`)}&${formData.get('amount')}`, {
       method: "PUT",
       headers: {
@@ -33,7 +50,7 @@ function FeeClearPage() {
       },
     });
 
-    getData(rollNoState);
+    // getData(userData.studentId);
 
     // Swal.fire({
     //   title: (await response.json()).message,
@@ -58,17 +75,17 @@ function FeeClearPage() {
       <div className='bg-surface-color p-4 flex flex-col gap-4 [&_h1]:text-lg [&_h1]:md:text-xl'>
         <div className="p-10 w-full flex flex-col gap-2">
           <h1>Enter Roll No of Student to Edit</h1>
-          <form onSubmit={fetchStudentData} className="flex justify-between gap-5">
+          <form className="flex justify-between gap-5">
             <input type='text' className="w-full bg-background-color p-2 rounded-lg" name="rollNo" id="" />
-            <button type='submit' className="button-primary">Fetch</button>
+            <button formAction={fetchStudentData} type='submit' className="button-primary">Fetch</button>
           </form>
 
-          <form onSubmit={deductFee}>
+          <form>
             <div className="w-full h-full flex flex-col gap-2">
               <h1>Invoice</h1>
               <select className="w-full bg-background-color p-2 rounded-lg" name="invoiceID" id="">
-                {dataPage.map((invoice: {invoiceID: string, description: string, term: string, amount: string}) => {
-                  return <option value={invoice.invoiceID}>{invoice.description} - {invoice.term} - ({invoice.amount} Remaining)</option>;
+                {dataPage.map((invoice: Tables<'Invoice'>) => {
+                  return <option key={invoice.id} value={invoice.id}>{invoice.description} - {invoice.term} - ({invoice.amount} Remaining)</option>;
                 })}
               </select>
             </div>
@@ -77,7 +94,7 @@ function FeeClearPage() {
               <h1>Amount</h1>
               <input type='number' className="w-full bg-background-color p-2 rounded-lg" name="amount" id="student-to-fetch-to-edit" />
             </div>
-            <button className='button-primary w-full mt-2' type="submit">Submit</button>
+            <button formAction={deductFee} className='button-primary w-full mt-2' type="submit">Submit</button>
           </form>
         </div>
       </div>

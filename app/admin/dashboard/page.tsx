@@ -11,18 +11,14 @@ async function AdminDashboard() {
     return;
   }
 
-  const userId = authUser.id;
-
   const { data: userData, error: userError } = await supabase
     .from('User')
     .select(`
       name,
       Department:departmentId (name)
     `)
-    .eq('id', userId)
+    .eq('id', authUser.id)
     .single() as { data: { name: string, Department: { name: string } }, error: any };
-
-  console.log(userData);
 
   if (userError) {
     console.error('Error fetching user details:', userError);
