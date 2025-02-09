@@ -9,14 +9,14 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
   const searchParams = await props.searchParams;
   return (
     <main className="flex flex-col items-center justify-center min-h-screen border-2 min-w-full">
-      <form className="flex flex-col min-w-64">
+      <form className="flex flex-col min-w-96 bg-surface-color p-4 border-2">
         <h1 className="text-2xl font-medium">Sign in</h1>
-        <p className="text-sm text-foreground">
+        {/* <p className="text-sm text-foreground">
           Don't have an account?{" "}
           <Link className="text-foreground font-medium underline" href="/sign-up">
             Sign up
           </Link>
-        </p>
+        </p> */}
         <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
           <Label htmlFor="email">Email</Label>
           <Input name="email" placeholder="you@example.com" required />
