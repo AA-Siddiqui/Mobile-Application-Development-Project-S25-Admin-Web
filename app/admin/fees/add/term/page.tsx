@@ -1,6 +1,5 @@
-"use client";
-import {withAuthAdmin, withAuthStudent, withAuthTeacher} from '@/lib/withAuth';
-import React from 'react'
+import { createClient } from '@/utils/supabase/server';
+import { Tables } from '@/utils/types/supabase';
 import Swal from 'sweetalert2';
 
 function FeesAddPage() {
@@ -35,33 +34,43 @@ function FeesAddPage() {
   //     invoiceAmount
   // FROM
   //     Student_Invoice_Data;
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    console.log(formData.get('dueDate'));
+  async function handleSubmit(formData: FormData) {
+    "use server";
+    const term = formData.get('term') as string;
+    const amount = Number(formData.get('amount'));
+    const description = formData.get('description') as string;
+    const dueDate = formData.get('dueDate') as string;
 
-    const response = await fetch(`http://localhost:3001/admin/fees/add/term/${formData.get('term')}&${formData.get('amount')}&${formData.get('description')}&${formData.get('dueDate')}`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-    });
-
-    if (response.ok) {
-      Swal.fire({
-        title: (await response.json()).message,
-        timer: 2000,
-        timerProgressBar: true,
-        customClass: {
-          timerProgressBar: 'bg-secondary-color',
-          popup: 'bg-surface-color text-text-color',
-          title: 'text-accent-color',
-          confirmButton: 'button-primary px-4',
-        }
+    const supabase = await createClient();
+    try {
+      const { data: result, error } = await supabase.rpc('get_student_invoice_data', {
+        term_input: term,
+        amount: amount,
+        desc_text: description
       });
+
+      if (error) throw error;
+
+      // Insert invoice records safely using Supabase .insert()
+      const invoices: Tables<'Invoice'> = result.map((row: any) => ({
+        studentId: row.sid,
+        description: row.description,
+        amount: row.invoiceamount,
+        dueDate: dueDate,
+        term: row.term
+      }));
+
+      const { error: insertError } = await supabase.from('Invoice').insert(invoices);
+
+      if (insertError) throw insertError;
+
+      console.log('Invoices inserted successfully.');
+    } catch (err) {
+      console.error('Error:', err);
     }
   }
+
+  // }
   return (
     <main>
       <section className="w-full p-5 flex flex-col justify-start">
@@ -70,7 +79,7 @@ function FeesAddPage() {
         </div>
       </section>
       <div className='bg-surface-color p-4 flex flex-col gap-4 [&_h1]:text-lg [&_h1]:md:text-xl'>
-        <form onSubmit={handleSubmit} className="p-10 w-full flex flex-col gap-2">
+        <form action={handleSubmit} className="p-10 w-full flex flex-col gap-2">
           <h1>Term To Charge Fee To</h1>
           <div className="flex justify-between gap-5">
             <input type='text' className="w-full bg-background-color p-2 rounded-lg" name="term" id="">
@@ -101,4 +110,4 @@ function FeesAddPage() {
   )
 }
 
-export default withAuthAdmin(FeesAddPage);
+export default FeesAddPage;
