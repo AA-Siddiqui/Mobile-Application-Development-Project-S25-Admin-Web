@@ -2,7 +2,7 @@
 import { createClient } from '@/utils/supabase/client';
 import { Tables } from '@/utils/types/supabase';
 import React, { useState } from 'react'
-// import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 
 function FeeClearPage() {
   const [dataPage, setData] = useState<Tables<'Invoice'>[]>([]);
@@ -13,10 +13,7 @@ function FeeClearPage() {
     const { data: userData, error: userError } = await supabase
       .from('Invoice')
       .select(`*`)
-      .eq('studentId', studentId) as {data: Tables<'Invoice'>[], error: any};
-    
-    console.log(userData);
-
+      .eq('studentId', studentId) as { data: Tables<'Invoice'>[], error: any };
 
     setData(userData);
   }
@@ -32,7 +29,7 @@ function FeeClearPage() {
     `)
       .eq('rollNo', rollNo)
       .single() as { data: { id: number }, error: any };
-      
+
     if (userError) {
       console.error('Error fetching user details:', userError);
       return;
@@ -41,28 +38,49 @@ function FeeClearPage() {
     getData(userData.id);
   }
 
-  // TODO: Implement this
   async function deductFee(formData: FormData) {
-    const response = await fetch(`http://localhost:3001/admin/fees/${formData.get(`invoiceID`)}&${formData.get('amount')}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const invoiceID = formData.get("invoiceID");
+    const amount = formData.get("amount") as unknown as number;
+
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from('Invoice')
+      .select('amount')
+      .eq('id', invoiceID)
+      .single();
+
+    if (error) {
+      console.error('Error fetching invoice:', error);
+      return;
+    }
+
+    const newAmount = data.amount - amount;
+    const updatePayload = {
+      amount: newAmount,
+      ...(newAmount <= 0 && { paidDate: new Date().toISOString().split('T')[0] })
+    };
+
+    // Update the invoice
+    const { error: updateError } = await supabase
+      .from('Invoice')
+      .update(updatePayload)
+      .eq('id', invoiceID);
+
+
+    getData(rollNoState);
+
+    const updateMessage = updateError ? `Error updating invoice: ${updateError.message}` : "Invoice updated successfully";
+    Swal.fire({
+      title: updateMessage,
+      timer: 2000,
+      timerProgressBar: true,
+      customClass: {
+        timerProgressBar: 'bg-secondary-color',
+        popup: 'bg-surface-color text-text-color',
+        title: 'text-accent-color',
+        confirmButton: 'button-primary px-4',
+      }
     });
-
-    // getData(userData.studentId);
-
-    // Swal.fire({
-    //   title: (await response.json()).message,
-    //   timer: 2000,
-    //   timerProgressBar: true,
-    //   customClass: {
-    //     timerProgressBar: 'bg-secondary-color',
-    //     popup: 'bg-surface-color text-text-color',
-    //     title: 'text-accent-color',
-    //     confirmButton: 'button-primary px-4',
-    //   }
-    // });
   }
 
   return (
