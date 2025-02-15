@@ -48,7 +48,7 @@ async function AdminDashboard() {
     // { title: "Clear Fees", link: "fees/clear" },
 
     { title: "Enroll Students to Course", link: "enroll" },
-    { title: "Review Requests", link: "requests" },
+    // { title: "Review Requests", link: "requests" },
 
     { title: "Schedule Extra Class", link: "schedule" }
   ];

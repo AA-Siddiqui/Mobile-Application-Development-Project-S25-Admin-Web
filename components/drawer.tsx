@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { signOutAction } from "@/app/actions";
+import { useRouter } from "next/navigation";
 
 export default function Drawer() {
   const [drawerState, setDrawerState] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     function openDrawer() {
@@ -52,17 +54,21 @@ export default function Drawer() {
           <button className="text-2xl border-none bg-transparent text-text-color cursor-pointer p-2.5" onClick={() => { setDrawerState(false); }}>×</button>
         </div>
         <div className="w-full flex flex-col justify-start gap-2.5">
-          {/* {
-            [
-              { text: "Logout", route: "/" }
-            ].map((btn, btnIndex) => {
-              return (<a href={btn.route} className="text-text-color bg-background-color border-2 border-solid border-border-color no-underline p-5 w-full transition-all duration-300 ease-in-out hover:bg-surface-color" key={btnIndex}>{btn.text}</a>)
-            })} */}
+          
+          
+          <form action={() => {
+            router.push("/admin/dashboard");
+            setDrawerState(false);
+          }}>
+            <Button className="text-text-color bg-background-color border-2 border-solid border-border-color no-underline p-5 w-full transition-all duration-300 ease-in-out hover:bg-surface-color" type="submit" variant={"outline"}>
+              Home
+            </Button>
+          </form>
           <form action={signOutAction}>
-        <Button className="text-text-color bg-background-color border-2 border-solid border-border-color no-underline p-5 w-full transition-all duration-300 ease-in-out hover:bg-surface-color" type="submit" variant={"outline"}>
-          Sign out
-        </Button>
-      </form>
+            <Button className="text-text-color bg-background-color border-2 border-solid border-border-color no-underline p-5 w-full transition-all duration-300 ease-in-out hover:bg-surface-color" type="submit" variant={"outline"}>
+              Sign out
+            </Button>
+          </form>
         </div>
       </aside>
       <div className="pb-14"></div>
