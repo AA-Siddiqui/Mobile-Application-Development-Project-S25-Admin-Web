@@ -44,7 +44,7 @@ async function AdminDashboard() {
     { title: "Edit Class", link: "edit/class" },
 
     { title: "Generate Fees For Term", link: "fees/add/term" },
-    { title: "Generate Fees For Student", link: "fees/add/student" },
+    // { title: "Generate Fees For Student", link: "fees/add/student" },
     // { title: "Clear Fees", link: "fees/clear" },
 
     // { title: "Enroll Students to Course", link: "enroll" },

@@ -1,30 +1,26 @@
-"use client";
-import {withAuthAdmin, withAuthStudent, withAuthTeacher} from '@/lib/withAuth';
+import { createClient } from '@/utils/supabase/server';
 import React from 'react'
 import Swal from 'sweetalert2';
 
 function FeesAddStudentPage() {
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {};
+  async function handleSubmit(formData: FormData) {
+    "use server";
+    const data: Record<string, FormDataEntryValue> = {};
 
     formData.forEach((value, key) => {
       data[key] = value;
     });
 
-    const response = await fetch(`http://localhost:3001/admin/fees/add/student`, {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+    const supabase = await createClient();
+    const { data: student, error: selectError } = await supabase
+      .from("Student")
+      .select("id")
+      .eq("rollNo", data.rollNo)
+      .single();
 
-    if (response.ok) {
+    if (selectError) {
       Swal.fire({
-        title: (await response.json()).message,
+        title: "Error: " + selectError.message,
         timer: 2000,
         timerProgressBar: true,
         customClass: {
@@ -34,7 +30,62 @@ function FeesAddStudentPage() {
           confirmButton: 'button-primary px-4',
         }
       });
+      return;
     }
+
+    if (!student) {
+      Swal.fire({
+        title: "Student not found",
+        timer: 2000,
+        timerProgressBar: true,
+        customClass: {
+          timerProgressBar: 'bg-secondary-color',
+          popup: 'bg-surface-color text-text-color',
+          title: 'text-accent-color',
+          confirmButton: 'button-primary px-4',
+        }
+      });
+      return;
+    }
+
+    const studentId = student.id;
+
+    const description = data.description;
+    const term = data.term;
+    const dueDate = data.dueDate;
+    const amount = data.amount;
+
+    const { error: insertError } = await supabase
+      .from("Invoice")
+      .insert([{ studentId, description, term, dueDate, amount }]);
+
+
+    if (insertError) {
+      Swal.fire({
+        title: insertError.message,
+        timer: 2000,
+        timerProgressBar: true,
+        customClass: {
+          timerProgressBar: 'bg-secondary-color',
+          popup: 'bg-surface-color text-text-color',
+          title: 'text-accent-color',
+          confirmButton: 'button-primary px-4',
+        }
+      });
+      return;
+    }
+
+    Swal.fire({
+      title: "Enrolled Successfully",
+      timer: 2000,
+      timerProgressBar: true,
+      customClass: {
+        timerProgressBar: 'bg-secondary-color',
+        popup: 'bg-surface-color text-text-color',
+        title: 'text-accent-color',
+        confirmButton: 'button-primary px-4',
+      }
+    });
   }
   return (
     <main>
@@ -45,7 +96,7 @@ function FeesAddStudentPage() {
       </section>
       <div className='bg-surface-color p-4 flex flex-col gap-4 [&_h1]:text-lg [&_h1]:md:text-xl'>
         <div className="p-10 w-full flex flex-col gap-2">
-          <form onSubmit={handleSubmit}>
+          <form action={handleSubmit}>
             <h1>Enter Roll No of Student to Charge Fee To</h1>
             <div className="flex justify-between gap-5">
               <input type='text' className="w-full bg-background-color p-2 rounded-lg" name="rollNo" />
@@ -75,4 +126,4 @@ function FeesAddStudentPage() {
   )
 }
 
-export default withAuthAdmin(FeesAddStudentPage);
+export default FeesAddStudentPage;
