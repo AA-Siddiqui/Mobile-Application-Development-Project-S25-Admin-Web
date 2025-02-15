@@ -1,4 +1,5 @@
 // "use client";
+// TODO: get it back to client cuz its not good rn
 import { createClient } from "@/utils/supabase/server";
 import DecisionCard from "./DecisionCard";
 // import React, { useEffect, useState } from "react";
