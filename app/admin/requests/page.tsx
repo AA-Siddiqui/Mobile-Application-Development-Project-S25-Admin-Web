@@ -76,6 +76,7 @@ async function ReviewRequestPage() {
     // Update the request status
 
     // FIXME: Truncated behaviour because I might change the way Attendance works
+    // DID: Fixed, Not tested
     const supabase = await createClient();
     const { error: updateError } = await supabase
       .from("Request")
@@ -110,8 +111,38 @@ async function ReviewRequestPage() {
         console.error("Error inserting into Enrollment:", insertError);
         return { message: "Error inserting into Enrollment", error: insertError };
       }
+
+      const { data: scheduleIDs, error: scheduleError } = await supabase
+        .from('Schedule')
+        .select('id')
+        .eq('classId', classId);
+
+      if (scheduleError) {
+        console.error('Error fetching schedule IDs:', scheduleError);
+        return { success: false, error: scheduleError };
+      }
+
+      if (!scheduleIDs || scheduleIDs.length === 0) {
+        console.log('No schedules found for this class.');
+        return { success: false, message: 'No schedules found' };
+      }
+
+      const attendanceRecords = scheduleIDs.map((schedule) => ({
+        studentId: studentId,
+        scheduleId: schedule.id,
+      }));
+
+      const { error: attendanceError } = await supabase
+        .from('Attendance')
+        .insert(attendanceRecords);
+
+      if (attendanceError) {
+        console.error('Error inserting attendance:', attendanceError);
+        return { success: false, error: attendanceError };
+      }
+
     }
-    return {message: "Request updated successfully"};
+    return { message: "Request updated successfully" };
   }
   return (
     <main>

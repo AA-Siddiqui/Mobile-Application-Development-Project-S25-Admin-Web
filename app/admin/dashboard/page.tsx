@@ -50,7 +50,7 @@ async function AdminDashboard() {
     // { title: "Enroll Students to Course", link: "enroll" },
     // { title: "Review Requests", link: "requests" },
 
-    { title: "Schedule Extra Class", link: "schedule" }
+    // { title: "Schedule Extra Class", link: "schedule" }
   ];
   return (
     <main>
