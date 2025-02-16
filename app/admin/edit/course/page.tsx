@@ -1,4 +1,3 @@
-"use client";
 import { AdminEditCourseForm } from '@/components/AdminFormCollectionClient';
 
 function AdminEditCoursePage() {
