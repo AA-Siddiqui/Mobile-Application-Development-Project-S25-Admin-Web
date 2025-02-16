@@ -35,12 +35,12 @@ async function AdminDashboard() {
   const actions = [
     { title: "Add Student", link: "add/user/student" },
     { title: "Add Teacher", link: "add/user/teacher" },
-    { title: "Add Course", link: "add/course" },
+    // { title: "Add Course", link: "add/course" },
     { title: "Add Class", link: "add/class" },
 
     { title: "Edit Student", link: "edit/user/student" },
     { title: "Edit Teacher", link: "edit/user/teacher" },
-    { title: "Edit Course", link: "edit/course" },
+    // { title: "Edit Course", link: "edit/course" },
     { title: "Edit Class", link: "edit/class" },
 
     // { title: "Generate Fees For Term", link: "fees/add/term" },

@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import { RxMinus, RxPlus } from "react-icons/rx";
 import Swal from 'sweetalert2';
+import { AdminAddCourseForm } from './AdminFormCollectionServer';
+import { createClient } from '@/utils/supabase/client';
 
 function getTermsFromDate(startDate: string) {
   // Get the current date and start year
@@ -9,7 +11,7 @@ function getTermsFromDate(startDate: string) {
   const start = new Date(startDate);
   const startYear = start.getFullYear();
   const currentYear = currentDate.getFullYear();
-  
+
   // Define the months for each term
   const terms = [
     { name: "Spring", startMonth: 0, endMonth: 4 }, // Jan to May
@@ -39,7 +41,7 @@ function getTermsFromDate(startDate: string) {
 }
 
 
-export function AdminAddClassForm({ data, edit } : {data: any, edit: any}) {
+export function AdminAddClassForm({ data, edit }: { data: any, edit: any }) {
   const [course, setCourse] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any[]>([]);
   const [rows, setRows] = useState(data?.schedule.length ?? 1);
@@ -189,68 +191,7 @@ export function AdminAddClassForm({ data, edit } : {data: any, edit: any}) {
   )
 }
 
-export function AdminAddCourseForm({ data, edit }: {data: any, edit: any}) {
-  async function handleSubmit(formData: FormData) {
-    const response = await fetch(`http://localhost:3001/admin/add/course`, {
-      method: edit ? "PUT" : "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        courseID: edit,
-        name: formData.get('name'),
-        creditHr: formData.get('creditHr'),
-        mode: formData.get('mode')
-      }),
-    })
-    Swal.fire({
-      title: (await response.json()).message ?? "Error",
-      timer: 2000,
-      timerProgressBar: true,
-      customClass: {
-        timerProgressBar: 'bg-secondary-color',
-        popup: 'bg-surface-color text-text-color',
-        title: 'text-accent-color',
-        confirmButton: 'button-primary px-4',
-      }
-    });
-  }
-  return (
-    <form action={handleSubmit} className="p-10 pt-2 pb-0 flex flex-col gap-2">
-      <div className="w-full flex flex-col gap-2">
-        <h1>Name</h1>
-        <input type='text' defaultValue={data?.name} className="w-full bg-background-color p-2 rounded-lg" name="name" id="" />
-      </div>
-
-      <div className="w-full flex flex-col gap-2">
-        <h1>Credit Hours</h1>
-        <input type='number' defaultValue={data?.creditHr} className="w-full bg-background-color p-2 rounded-lg" name="creditHr" id="" />
-      </div>
-
-      {/* <div className="w-full flex flex-col gap-2">
-        <h1>Department</h1>
-        <select defaultValue={data?.department} className="w-full bg-background-color p-2 rounded-lg" name="" id="">
-          <option value="A">A</option>
-          <option value="B">B</option>
-          <option value="C">C</option>
-        </select>
-      </div> */}
-
-      <div className="w-full flex flex-col gap-2">
-        <h1>Mode</h1>
-        <select className="w-full bg-background-color p-2 rounded-lg" name="mode" id="">
-          <option selected={data?.mode === "Lecture"} value="Lecture">Lecture</option>
-          <option selected={data?.mode === "Lab"} value="Lab">Lab</option>
-        </select>
-      </div>
-
-      <button type='submit' className="button-primary">{edit ? "Update" : "Add"}</button>
-    </form>
-  );
-}
-
-export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID }: {data: any, edit: any, departmentID: any, setDepartmentID: any}) {
+export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID }: { data: any, edit: any, departmentID: any, setDepartmentID: any }) {
   // const [departmentID, setDepartmentID] = useState(data?.department ?? -1);
   const [departments, setDeparments] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
@@ -379,7 +320,7 @@ export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID 
   );
 }
 
-export function AdminAddTeacherForm({ data, edit }: {data: any, edit: any}) {
+export function AdminAddTeacherForm({ data, edit }: { data: any, edit: any }) {
   const [departments, setDeparments] = useState<any[]>([]);
   async function fetchInitialData() {
     const departmentResponse = await fetch("http://localhost:3001/department/list");
@@ -574,9 +515,14 @@ export function AdminEditCourseForm() {
   const [dataSelected, setDataSelected] = useState<any>(undefined);
 
   async function getData() {
-    const response = await fetch(`http://localhost:3001/admin/get/course`);
-    const courses = await response.json();
-    setData(courses);
+    const supabase = createClient();
+    const { data, error } = await supabase.from("Course").select("courseID:id, name, creditHr:credits, mode");
+    if (error) {
+      console.error(error);
+      return;
+    }
+    setData(data ?? []);
+    setDataSelected(data[0] ?? {});
   }
 
   function setDataInForm(val: any) {
@@ -585,12 +531,19 @@ export function AdminEditCourseForm() {
   }
 
   async function deleteCourse(formData: FormData) {
-    const response = await fetch(`http://localhost:3001/admin/delete/course/${formData.get("courseID")}`, {
-      method: "DELETE",
-    });
+    const courseID = formData.get("courseID");
+    const supabase = createClient();
+    const { error } = await supabase.from('Course').delete().eq('id', courseID);
+
+    if (error) {
+      console.error('Error deleting course:', error);
+    }
+    // const response = await fetch(`http://localhost:3001/admin/delete/course/${formData.get("courseID")}`, {
+    //   method: "DELETE",
+    // });
 
     Swal.fire({
-      title: (await response.json()).message ?? "Error",
+      title: error?.cause ?? "Deleted Successfully",
       timer: 2000,
       timerProgressBar: true,
       customClass: {
@@ -613,8 +566,8 @@ export function AdminEditCourseForm() {
         <h1>Select Course to Edit</h1>
         <div className="flex justify-between gap-5">
           <select onChange={(e) => { setDataInForm(e.target.value); }} className="w-full bg-background-color p-2 rounded-lg" name="courseID">
-            {dataAll.map((course) => {
-              return <option value={course.courseID}>{course.name}</option>
+            {dataAll.map((course: any, index: number) => {
+              return <option key={index} value={course.courseID}>{course.name}</option>
             })}
           </select>
           <div className="flex justify-between gap-2">
