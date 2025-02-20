@@ -1,5 +1,5 @@
 "use client";
-import { AdminAddClassForm } from "@/components/AdminFormCollectionClient";
+import { AdminAddClassForm } from "@/components/AdminFormCollection";
 
 function AdminAddClassPage() {
   return (

@@ -1,4 +1,4 @@
-import { AdminAddCourseForm } from '@/components/AdminFormCollectionServer';
+import { AdminAddCourseForm } from "@/components/AdminFormCollection";
 
 function AdminAddCoursePage() {
   return (

@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import DecisionCard from "./DecisionCard";
 // import React, { useEffect, useState } from "react";
 
-export async function getData() : Promise<any[]> {
+async function getData() : Promise<any[]> {
   // Fetch user  
   const supabase = await createClient();
   const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();

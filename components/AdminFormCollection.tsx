@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { RxMinus, RxPlus } from "react-icons/rx";
 import Swal from 'sweetalert2';
-import { AdminAddCourseForm } from './AdminFormCollectionServer';
 import { createClient } from '@/utils/supabase/client';
 
 function getTermsFromDate(startDate: string) {
@@ -50,11 +49,13 @@ export function AdminAddClassForm({ data, edit }: { data?: any, edit?: any }) {
   async function getData() {
     const courseRequest = await fetch(`http://localhost:3001/admin/get/course`);
     const courses = await courseRequest.json();
-    setCourse(courses);
+    // setCourse(courses);
+    setCourse([]);
 
     const teacherRequest = await fetch(`http://localhost:3001/admin/get/teachers`);
     const teachers = await teacherRequest.json();
-    setTeacher(teachers);
+    // setTeacher(teachers);
+    setTeacher([]);
   }
 
   async function handleSubmit(formData: FormData) {
@@ -158,14 +159,14 @@ export function AdminAddClassForm({ data, edit }: { data?: any, edit?: any }) {
               // if (index >= data?.schedule.length) return;
               return (
                 <React.Fragment key={index}>
-                  <select className="w-full bg-background-color p-2 rounded-lg" name={`day-${index}`} id="">
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "1"} value="1">Monday</option>
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "2"} value="2">Tuesday</option>
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "3"} value="3">Wednesday</option>
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "4"} value="4">Thursday</option>
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "5"} value="5">Friday</option>
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "6"} value="6">Saturday</option>
-                    <option selected={index >= data!.schedule.length ? false : data?.schedule[index].day == "0"} value="0">Sunday</option>
+                  <select defaultValue={data?.schedule[index].day ?? "0"} className="w-full bg-background-color p-2 rounded-lg" name={`day-${index}`} id="">
+                    <option value="1">Monday</option>
+                    <option value="2">Tuesday</option>
+                    <option value="3">Wednesday</option>
+                    <option value="4">Thursday</option>
+                    <option value="5">Friday</option>
+                    <option value="6">Saturday</option>
+                    <option value="0">Sunday</option>
                   </select>
 
                   <input defaultValue={index >= data?.schedule.length ? null : data?.schedule[index].startTime} className="w-full bg-background-color p-2 rounded-lg" type="time" name={`startTime-${index}`} />
@@ -198,11 +199,13 @@ export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID 
   async function fetchInitialData() {
     const departmentResponse = await fetch("http://localhost:3001/department/list");
     const departmentData = await departmentResponse.json();
-    setDeparments(departmentData);
+    // setDeparments(departmentData);
+    setDeparments([]);
 
     const programsResponse = await fetch("http://localhost:3001/admin/get/programs");
     const programsData = await programsResponse.json();
-    setPrograms(programsData);
+    // setPrograms(programsData);
+    setPrograms([]);
   }
   useEffect(() => {
     fetchInitialData();
@@ -325,7 +328,8 @@ export function AdminAddTeacherForm({ data, edit }: { data?: any, edit?: any }) 
   async function fetchInitialData() {
     const departmentResponse = await fetch("http://localhost:3001/department/list");
     const departmentData = await departmentResponse.json();
-    setDeparments(departmentData);
+    // setDeparments(departmentData);
+    setDeparments([]);
   }
   useEffect(() => {
     fetchInitialData();
@@ -464,7 +468,8 @@ export function AdminEditClassForm() {
       method: "GET"
     });
     const data = await response.json();
-    setClasses(data);
+    // setClasses(data);
+    setClasses([]);
   }
 
   async function deleteClass(formData: FormData) {
@@ -587,8 +592,10 @@ export function AdminEditStudentForm() {
     const response = await fetch(`http://localhost:3001/admin/get/student/${(document.getElementById("student-to-fetch-to-edit") as HTMLInputElement)?.value ?? 0}`);
     const res = await response.json();
     console.log(res);
-    setData(res[0]);
-    setDepartmentID(res[0].department);
+    // setData(res[0]);
+    // setDepartmentID(res[0].department);
+    setData({});
+    setDepartmentID(0);
   }
 
   async function deleteStudent(formData: FormData) {
@@ -637,9 +644,10 @@ export function AdminEditTeacherForm() {
   async function getData() {
     const response = await fetch(`http://localhost:3001/admin/get/teachers`);
     const teachers = await response.json();
-    setData(teachers);
+    // setData(teachers);
+    setData([]);
     if (teachers.length > 0)
-      setDataSelected(teachers[0]);
+      setDataSelected({});
   }
 
 
@@ -691,5 +699,80 @@ export function AdminEditTeacherForm() {
       </form>
       <AdminAddTeacherForm data={dataSelected} edit={{ userID: dataSelected?.userID, teacherID: dataSelected?.teacherID }} />
     </div>
+  );
+}
+
+export function AdminAddCourseForm({ data, edit }: { data?: any; edit?: any; }) {
+
+  async function upsertCourseAction(formData: FormData, edit?: any) {
+    const supabase = createClient();
+    const { error } = await supabase.from('Course').upsert(
+      [
+        edit ? {
+          id: edit,
+          name: formData.get('name') as string,
+          credits: formData.get('creditHr') as string,
+          mode: formData.get('mode') as string,
+        } : {
+          name: formData.get('name') as string,
+          credits: formData.get('creditHr') as string,
+          mode: formData.get('mode') as string,
+        },
+      ],
+      { onConflict: 'id' }
+    );
+
+    if (error) {
+      console.error('Error upserting course:', error);
+      // return { success: false, error };
+    }
+    // const response = await fetch(`http://localhost:3001/admin/add/course`, {
+    //   method: edit ? "PUT" : "POST",
+    //   headers: {
+    //     "Accept": "application/json",
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify({
+    //     courseID: edit,
+    //     name: formData.get('name'),
+    //     creditHr: formData.get('creditHr'),
+    //     mode: formData.get('mode')
+    //   }),
+    // });
+    // Swal.fire({
+    //   title: (await response.json()).message ?? "Error",
+    //   timer: 2000,
+    //   timerProgressBar: true,
+    //   customClass: {
+    //     timerProgressBar: 'bg-secondary-color',
+    //     popup: 'bg-surface-color text-text-color',
+    //     title: 'text-accent-color',
+    //     confirmButton: 'button-primary px-4',
+    //   }
+    // });
+  }
+
+  return (
+    <form action={(formData) => upsertCourseAction(formData, edit)} className="p-10 pt-2 pb-0 flex flex-col gap-2">
+      <div className="w-full flex flex-col gap-2">
+        <h1>Name</h1>
+        <input type='text' defaultValue={data?.name} className="w-full bg-background-color p-2 rounded-lg" name="name" id="" />
+      </div>
+
+      <div className="w-full flex flex-col gap-2">
+        <h1>Credit Hours</h1>
+        <input type='number' defaultValue={data?.creditHr} className="w-full bg-background-color p-2 rounded-lg" name="creditHr" id="" />
+      </div>
+
+      <div className="w-full flex flex-col gap-2">
+        <h1>Mode</h1>
+        <select defaultValue={data?.mode} className="w-full bg-background-color p-2 rounded-lg" name="mode" id="">
+          <option value="Lecture">Lecture</option>
+          <option value="Lab">Lab</option>
+        </select>
+      </div>
+
+      <button type='submit' className="button-primary">{edit ? "Update" : "Add"}</button>
+    </form>
   );
 }
