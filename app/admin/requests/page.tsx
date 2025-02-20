@@ -4,7 +4,7 @@ import { createClient } from "@/utils/supabase/server";
 import DecisionCard from "./DecisionCard";
 // import React, { useEffect, useState } from "react";
 
-export async function getData() {
+export async function getData() : Promise<any[]> {
   // Fetch user  
   const supabase = await createClient();
   const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
@@ -52,7 +52,7 @@ export async function getData() {
 }
 
 async function ReviewRequestPage() {
-  const dataPage = await getData();
+  const dataPage: any[] = await getData();
   // const [dataPage, setData] = useState<any[]>([]);
   // async function getData() {
   //   const response = await fetch(`http://localhost:3001/admin/requests/${localStorage.id}`, {

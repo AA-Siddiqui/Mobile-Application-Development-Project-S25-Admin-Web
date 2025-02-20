@@ -33,24 +33,24 @@ async function AdminDashboard() {
   };
 
   const actions = [
-    { title: "Add Student", link: "add/user/student" },
-    { title: "Add Teacher", link: "add/user/teacher" },
-    // { title: "Add Course", link: "add/course" },
-    { title: "Add Class", link: "add/class" },
+    // { title: "Add Student", link: "add/user/student" },
+    // { title: "Add Teacher", link: "add/user/teacher" },
+    { title: "Add Course", link: "add/course" },
+    // { title: "Add Class", link: "add/class" },
 
-    { title: "Edit Student", link: "edit/user/student" },
-    { title: "Edit Teacher", link: "edit/user/teacher" },
-    // { title: "Edit Course", link: "edit/course" },
-    { title: "Edit Class", link: "edit/class" },
+    // { title: "Edit Student", link: "edit/user/student" },
+    // { title: "Edit Teacher", link: "edit/user/teacher" },
+    { title: "Edit Course", link: "edit/course" },
+    // { title: "Edit Class", link: "edit/class" },
 
-    // { title: "Generate Fees For Term", link: "fees/add/term" },
-    // { title: "Generate Fees For Student", link: "fees/add/student" },
-    // { title: "Clear Fees", link: "fees/clear" },
+    { title: "Generate Fees For Term", link: "fees/add/term" },
+    { title: "Generate Fees For Student", link: "fees/add/student" },
+    { title: "Clear Fees", link: "fees/clear" },
 
-    // { title: "Enroll Students to Course", link: "enroll" },
-    // { title: "Review Requests", link: "requests" },
+    { title: "Enroll Students to Course", link: "enroll" },
+    { title: "Review Requests", link: "requests" },
 
-    // { title: "Schedule Extra Class", link: "schedule" }
+    { title: "Schedule Extra Class", link: "schedule" }
   ];
   return (
     <main>

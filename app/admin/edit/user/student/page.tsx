@@ -1,6 +1,5 @@
 "use client";
-import { AdminEditStudentForm } from "@/components/AdminFormCollection"
-import {withAuthAdmin, withAuthStudent, withAuthTeacher} from "@/lib/withAuth";
+import { AdminEditStudentForm } from "@/components/AdminFormCollectionClient"
 
 function AdminEditStudentPage() {
   return (
@@ -17,4 +16,4 @@ function AdminEditStudentPage() {
   )
 }
 
-export default withAuthAdmin(AdminEditStudentPage);
+export default AdminEditStudentPage;

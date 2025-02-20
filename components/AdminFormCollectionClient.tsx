@@ -41,7 +41,7 @@ function getTermsFromDate(startDate: string) {
 }
 
 
-export function AdminAddClassForm({ data, edit }: { data: any, edit: any }) {
+export function AdminAddClassForm({ data, edit }: { data?: any, edit?: any }) {
   const [course, setCourse] = useState<any[]>([]);
   const [teacher, setTeacher] = useState<any[]>([]);
   const [rows, setRows] = useState(data?.schedule.length ?? 1);
@@ -191,7 +191,7 @@ export function AdminAddClassForm({ data, edit }: { data: any, edit: any }) {
   )
 }
 
-export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID }: { data: any, edit: any, departmentID: any, setDepartmentID: any }) {
+export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID }: { data?: any, edit?: any, departmentID?: any, setDepartmentID?: any }) {
   // const [departmentID, setDepartmentID] = useState(data?.department ?? -1);
   const [departments, setDeparments] = useState<any[]>([]);
   const [programs, setPrograms] = useState<any[]>([]);
@@ -320,7 +320,7 @@ export function AdminAddStudentForm({ data, edit, departmentID, setDepartmentID 
   );
 }
 
-export function AdminAddTeacherForm({ data, edit }: { data: any, edit: any }) {
+export function AdminAddTeacherForm({ data, edit }: { data?: any, edit?: any }) {
   const [departments, setDeparments] = useState<any[]>([]);
   async function fetchInitialData() {
     const departmentResponse = await fetch("http://localhost:3001/department/list");
